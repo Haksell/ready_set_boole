@@ -1,12 +1,5 @@
-from functools import cache
-
-
-@cache
 def gray_code(n):
-    if n <= 1:
-        return n
-    largest_bit = 1 << (n.bit_length() - 1)
-    return largest_bit | gray_code(~n & (largest_bit - 1))
+    return n ^ n >> 1
 
 
 def test_gray_code():
