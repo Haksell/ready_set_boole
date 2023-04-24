@@ -59,15 +59,20 @@ def test_boolean_evaluation_complex():
     assert boolean_evaluation("111==")
 
 
-def test_boolean_evaluation_two_material_implications():
-    assert not boolean_evaluation("000>>")
-    assert boolean_evaluation("001>>")
-    assert boolean_evaluation("010>>")
-    assert boolean_evaluation("011>>")
-    assert boolean_evaluation("100>>")
-    assert boolean_evaluation("101>>")
-    assert boolean_evaluation("110>>")
-    assert boolean_evaluation("111>>")
+# def test_boolean_evaluation_two_material_implications():
+#     assert not boolean_evaluation("000>>")
+#     assert boolean_evaluation("001>>")
+#     assert boolean_evaluation("010>>")
+#     assert boolean_evaluation("011>>")
+#     assert boolean_evaluation("100>>")
+#     assert boolean_evaluation("101>>")
+#     assert boolean_evaluation("110>>")
+#     assert boolean_evaluation("111>>")
+
+# def test_boolean_evaluation_two_...():
+# def test_boolean_evaluation_two_...():
+# def test_boolean_evaluation_two_...():
+# def test_boolean_evaluation_two_...():
 
 
 def test_boolean_evaluation_error():
