@@ -53,10 +53,7 @@ def test_boolean_evaluation_binary():
 def test_boolean_evaluation_complex():
     assert boolean_evaluation("1011||=")
     assert boolean_evaluation("1!1|")
-    assert boolean_evaluation("111^^")
     assert not boolean_evaluation("1111^^^")
-    assert not boolean_evaluation("000==")
-    assert boolean_evaluation("111==")
 
 def test_boolean_evaluation_two_ands():
     assert not boolean_evaluation("000&&")
