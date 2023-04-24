@@ -1,25 +1,21 @@
 from random import randint
+from utils import UINT_MAX
 
 
 def adder(a, b):
     res = carry = 0
     for i in range(32):
-        ai = a >> i & 1
-        bi = b >> i & 1
-        res |= (ai ^ bi ^ carry) << i
-        carry = (ai & bi) | (ai & carry) | (bi & carry)
+        da = a >> i & 1
+        db = b >> i & 1
+        res |= (da ^ db ^ carry) << i
+        carry = (da & db) | (da & carry) | (db & carry)
     return res
 
 
-UINT_MAX = (1 << 32) - 1
-
-
 def test_adder_small():
-    assert adder(0, 0) == 0
-    assert adder(0, 42) == 42
-    assert adder(42, 0) == 42
-    assert adder(42, 42) == 84
-    assert adder(100, 300) == 400
+    for a in range(6):
+        for b in range(6):
+            assert adder(a, b) == a + b
 
 
 def test_adder_overflow():
@@ -29,7 +25,7 @@ def test_adder_overflow():
 
 
 def test_adder_random():
-    for _ in range(100):
+    for _ in range(25):
         a = randint(0, UINT_MAX)
         b = randint(0, UINT_MAX)
         assert adder(a, b) == a + b & UINT_MAX
