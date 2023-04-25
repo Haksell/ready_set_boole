@@ -1,3 +1,4 @@
+from .utils import get_letters
 from .ex03 import eval_formula
 from itertools import product
 from string import ascii_uppercase
@@ -6,7 +7,7 @@ ALLOWED_CHARACTERS = set(ascii_uppercase + "!&|^>=")
 
 
 def get_truth_table(s):
-    letters = "".join(sorted(set(filter(str.isupper, s))))
+    letters = get_letters(s)
     table = [[*letters, "="], ["---"] * (len(letters) + 1)]
     for values in product("01", repeat=len(letters)):
         formula = s.translate(str.maketrans(letters, "".join(values)))
