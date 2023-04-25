@@ -1,7 +1,7 @@
 from srcs.formula_checks import (
     is_valid_explicit_formula,
     is_valid_formula,
-    is_valid_nnf,
+    is_nnf,
     is_valid_variable_formula,
 )
 
@@ -45,17 +45,17 @@ def test_is_valid_variable_formula():
     assert is_valid_variable_formula("AB&!")
 
 
-def test_is_valid_nnf():
-    assert is_valid_nnf("A!B!|")
-    assert is_valid_nnf("A!B!&")
-    assert is_valid_nnf("A!B|")
-    assert is_valid_nnf("AB&A!B!&|")
-    assert is_valid_nnf("A!B!&C!|")
+def test_is_nnf():
+    assert is_nnf("A!B!|")
+    assert is_nnf("A!B!&")
+    assert is_nnf("A!B|")
+    assert is_nnf("AB&A!B!&|")
+    assert is_nnf("A!B!&C!|")
 
 
-def test_is_invalid_nnf():
-    assert not is_valid_nnf("AB&!")
-    assert not is_valid_nnf("AB|!")
-    assert not is_valid_nnf("AB>")
-    assert not is_valid_nnf("AB=")
-    assert not is_valid_nnf("AB|C&!")
+def test_is_not_nnf():
+    assert not is_nnf("AB&!")
+    assert not is_nnf("AB|!")
+    assert not is_nnf("AB>")
+    assert not is_nnf("AB=")
+    assert not is_nnf("AB|C&!")

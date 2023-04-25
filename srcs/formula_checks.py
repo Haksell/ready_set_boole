@@ -26,7 +26,7 @@ def is_valid_variable_formula(formula):
     return is_valid_formula(formula) and all(c not in BOOLEANS for c in formula)
 
 
-def is_valid_nnf(formula):
+def is_nnf(formula):
     return formula in tuple(BOOLEANS) or (
         is_valid_formula(formula)
         and all(c.isupper() or c in "!&|" for c in formula)
