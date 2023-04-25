@@ -2,4 +2,5 @@ test:
 	pytest -v tests
 
 clean:
-	rm -rf .vscode tests/.pytest_cache __pycache__ */__pycache__
+	find . -path '*/__pycache__*' -delete
+	find . -path '*/.pytest_cache*' -delete
