@@ -1,4 +1,4 @@
-from .formula_checks import is_valid_explicit_formula
+from .utils import is_valid_explicit_formula
 from .utils import BINARY_OPERATIONS
 
 

@@ -2,16 +2,14 @@
 import parent
 from string import ascii_uppercase
 from srcs.ex04 import print_truth_table
-from srcs.formula_checks import BINARY_OPERATORS, is_valid_variable_formula
+from srcs.utils import VALID_CHARACTERS, is_valid_formula, looks_valid
 import sys
 
 
-if len(sys.argv) != 2 or not set(formula := sys.argv[1]) <= set(
-    BINARY_OPERATORS + ascii_uppercase + "!"
-):
-    print("Usage:", sys.argv[0], f"'[01!{BINARY_OPERATORS}]+'")
+if len(sys.argv) != 2 or not looks_valid(formula := sys.argv[1]):
+    print("Usage:", sys.argv[0], f"'[f{''.join(sorted(VALID_CHARACTERS))}]+'")
     print("Example:", sys.argv[0], "'1011||='")
-elif not is_valid_variable_formula(formula):
+elif not is_valid_formula(formula):
     print(formula, "is malformatted")
 else:
     print_truth_table(formula)

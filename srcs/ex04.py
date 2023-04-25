@@ -1,11 +1,11 @@
-from .formula_checks import is_valid_variable_formula
+from .utils import is_valid_formula
 from .utils import get_letters
 from .ex03 import eval_formula
 from itertools import product
 
 
 def get_truth_table(formula):
-    assert is_valid_variable_formula(formula)
+    assert is_valid_formula(formula)
     letters = get_letters(formula)
     table = [[*letters, "="], ["---"] * (len(letters) + 1)]
     for values in product("01", repeat=len(letters)):
@@ -16,6 +16,6 @@ def get_truth_table(formula):
 
 
 def print_truth_table(formula):
-    assert is_valid_variable_formula(formula)
+    assert is_valid_formula(formula)
     for row in get_truth_table(formula):
         print("|" + "|".join(x.center(3) for x in row) + "|")

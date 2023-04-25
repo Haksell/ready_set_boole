@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import parent
 from srcs.ex03 import eval_formula
-from srcs.formula_checks import BINARY_OPERATORS, BOOLEANS, is_valid_explicit_formula
+from srcs.utils import BINARY_OPERATORS, BOOLEANS, is_valid_explicit_formula
 import sys
 
 if len(sys.argv) != 2 or not set(formula := sys.argv[1]) <= set(

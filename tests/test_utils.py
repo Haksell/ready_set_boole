@@ -1,8 +1,7 @@
-from srcs.formula_checks import (
+from srcs.utils import (
     is_valid_explicit_formula,
     is_valid_formula,
     is_nnf,
-    is_valid_variable_formula,
 )
 
 
@@ -37,12 +36,6 @@ def test_is_valid_explicit_formula():
     assert is_valid_explicit_formula("0!1!&")
     assert not is_valid_explicit_formula("A!B!&0!|")
     assert not is_valid_explicit_formula("AB&!")
-
-
-def test_is_valid_variable_formula():
-    assert not is_valid_variable_formula("0!1!&")
-    assert not is_valid_variable_formula("A!B!&0!|")
-    assert is_valid_variable_formula("AB&!")
 
 
 def test_is_nnf():
