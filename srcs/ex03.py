@@ -4,10 +4,11 @@ OPERATIONS = {"|": or_, "&": and_, "^": xor, ">": lambda a, b: not a or b, "=": 
 ALLOWED_CHARACTERS = set("01!|&>=^")
 
 
-def eval_formula(s):
-    assert type(s) == str and set(s) <= ALLOWED_CHARACTERS
+def eval_formula(formula):
+    assert type(formula) == str and set(formula) <= ALLOWED_CHARACTERS
+    assert all(not c.isupper() for c in formula)
     stack = []
-    for c in s:
+    for c in formula:
         if c in "01":
             stack.append(c == "1")
         elif c == "!":

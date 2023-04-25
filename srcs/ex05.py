@@ -1,10 +1,9 @@
+from string import ascii_uppercase
 from .utils import is_valid_formula
 
 
 def is_nnf(formula):
-    if not is_valid_formula(formula):
-        return False
-    if any(not c.isupper() or c not in "!&|" for c in formula):
+    if type(formula) != str or not set(formula) <= set(ascii_uppercase + "!&|"):
         return False
     return True
 

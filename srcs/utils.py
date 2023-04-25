@@ -1,4 +1,8 @@
+from string import ascii_uppercase
+
+
 UINT_MAX = 0xFFFFFFFF
+BINARY_OPERATORS = "&|^>="
 
 
 def get_letters(formula):
@@ -6,4 +10,13 @@ def get_letters(formula):
 
 
 def is_valid_formula(formula):
-    return type(formula) == str and all(c.isupper() or c in "!&|^>=" for c in formula)
+    if not type(formula) == str or not set(formula) <= set(
+        ascii_uppercase + "01!" + BINARY_OPERATORS
+    ):
+        return False
+    n = 0
+    for c in formula:
+        n += c.isdigit() or c.isupper() - c in BINARY_OPERATORS
+        if n <= 0:
+            return False
+    assert n == 1
