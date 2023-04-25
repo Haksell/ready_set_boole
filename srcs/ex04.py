@@ -1,4 +1,4 @@
-from ex03 import eval_formula
+from srcs.ex03 import eval_formula
 from itertools import product
 from string import ascii_uppercase
 
@@ -12,7 +12,6 @@ def get_truth_table(s):
         formula = s.translate(str.maketrans(letters, "".join(values)))
         result = eval_formula(formula)
         table.append([*values, "1" if result else "0"])
-    print(table)
     return table
 
 

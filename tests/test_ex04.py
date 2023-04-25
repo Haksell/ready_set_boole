@@ -1,4 +1,4 @@
-from ex04 import get_truth_table
+from srcs.ex04 import get_truth_table
 
 
 def test_get_truth_table():

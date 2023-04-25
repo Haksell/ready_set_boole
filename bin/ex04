@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-from ex04 import ALLOWED_CHARACTERS, print_truth_table
+import parent
+from srcs.ex04 import ALLOWED_CHARACTERS, print_truth_table
 import sys
 
 

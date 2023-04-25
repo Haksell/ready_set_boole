@@ -1,4 +1,4 @@
-from ex00 import adder
+from srcs.ex00 import adder
 
 
 def multiplier(a, b):

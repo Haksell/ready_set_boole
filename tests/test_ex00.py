@@ -1,6 +1,6 @@
-from ex00 import adder
+from srcs.ex00 import adder
+from srcs.utils import UINT_MAX
 from random import randint
-from utils import UINT_MAX
 
 
 def test_adder_small():

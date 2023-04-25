@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-from ex03 import ALLOWED_CHARACTERS, eval_formula
+import parent
+from srcs.ex03 import ALLOWED_CHARACTERS, eval_formula
 import sys
 
 if __name__ == "__main__":
