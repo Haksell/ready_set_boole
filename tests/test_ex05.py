@@ -21,14 +21,21 @@ def check(formula):
 
 # test explicit values, double negations and everything combined
 def test_negation_normal_form():
+    check("A")
+    check("A!!")
+    check("A!!!!")
     check("AB^")
+    check("ABCD^^^")
     check("AB=")
+    check("ABCD===")
     check("AB>")
+    check("ABCD>>>")
     check("ABCD^>=")
     check("AB=C>D^")
     check("AB&!")
+    check("A!B!&!")
     check("AB|!")
-    check("AB!!")
+    check("A!B|!")
     check("AB|C&!")
     check("ABC&&!")
     check("ABC||!")
