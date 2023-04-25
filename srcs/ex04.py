@@ -1,21 +1,21 @@
+from .formula_checks import is_valid_variable_formula
 from .utils import get_letters
 from .ex03 import eval_formula
 from itertools import product
-from string import ascii_uppercase
-
-ALLOWED_CHARACTERS = set(ascii_uppercase + "!&|^>=")
 
 
-def get_truth_table(s):
-    letters = get_letters(s)
+def get_truth_table(formula):
+    assert is_valid_variable_formula(formula)
+    letters = get_letters(formula)
     table = [[*letters, "="], ["---"] * (len(letters) + 1)]
     for values in product("01", repeat=len(letters)):
-        formula = s.translate(str.maketrans(letters, "".join(values)))
-        result = eval_formula(formula)
+        explicit = formula.translate(str.maketrans(letters, "".join(values)))
+        result = eval_formula(explicit)
         table.append([*values, "1" if result else "0"])
     return table
 
 
-def print_truth_table(s):
-    for row in get_truth_table(s):
+def print_truth_table(formula):
+    assert is_valid_variable_formula(formula)
+    for row in get_truth_table(formula):
         print("|" + "|".join(x.center(3) for x in row) + "|")

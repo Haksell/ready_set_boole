@@ -9,9 +9,9 @@ if len(sys.argv) != 2 or not set(formula := sys.argv[1]) <= set(
 ):
     print("Usage:", sys.argv[0], f"'[01!{BINARY_OPERATORS}]+'")
     print("Example:", sys.argv[0], "'1011||='")
-    sys.exit(1)
-print(
-    formula,
-    "is",
-    eval_formula(formula) if is_valid_explicit_formula(formula) else "malformatted",
-)
+else:
+    print(
+        formula,
+        "is",
+        eval_formula(formula) if is_valid_explicit_formula(formula) else "malformatted",
+    )
