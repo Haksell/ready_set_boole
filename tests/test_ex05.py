@@ -14,7 +14,7 @@ def test_is_nnf_true():
 
 
 def test_is_nnf_false():
-    assert is_nnf(42)
+    assert not is_nnf(42)
 
 
 # def check(formula):

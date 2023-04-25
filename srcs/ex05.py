@@ -1,5 +1,5 @@
 from string import ascii_uppercase
-from .utils import is_valid_formula
+from .formula_checks import is_valid_formula
 
 
 def is_nnf(formula):
