@@ -1,15 +1,6 @@
-from adder import adder
 from random import randint
+from ex01 import multiplier
 from utils import UINT_MAX
-
-
-def multiplier(a, b):
-    res = 0
-    for ia in range(32):
-        da = a >> ia & 1
-        mask = adder(~da, 1)
-        res = adder(res, (b & mask) << ia)
-    return res
 
 
 def test_multiplier_small():

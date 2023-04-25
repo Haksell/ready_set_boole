@@ -1,15 +1,6 @@
+from ex00 import adder
 from random import randint
 from utils import UINT_MAX
-
-
-def adder(a, b):
-    res = carry = 0
-    for i in range(32):
-        da = a >> i & 1
-        db = b >> i & 1
-        res |= (da ^ db ^ carry) << i
-        carry = (da & db) | (da & carry) | (db & carry)
-    return res
 
 
 def test_adder_small():

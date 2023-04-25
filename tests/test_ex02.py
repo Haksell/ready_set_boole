@@ -1,5 +1,4 @@
-def gray_code(n):
-    return n ^ n >> 1
+from ex02 import gray_code
 
 
 def test_gray_code():
