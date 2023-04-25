@@ -3,13 +3,12 @@ import parent
 from srcs.ex03 import ALLOWED_CHARACTERS, eval_formula
 import sys
 
-if __name__ == "__main__":
-    if len(sys.argv) != 2 or not set(s := sys.argv[1]) <= ALLOWED_CHARACTERS:
-        print("Usage:", sys.argv[0], f"'[{''.join(sorted(ALLOWED_CHARACTERS))}]+'")
-        print("Example:", sys.argv[0], "'1011||='")
-        sys.exit(1)
-    try:
-        answer = eval_formula(s)
-    except (AssertionError, IndexError):
-        answer = "malformatted"
-    print(s, "is", answer)
+if len(sys.argv) != 2 or not set(s := sys.argv[1]) <= ALLOWED_CHARACTERS or not s:
+    print("Usage:", sys.argv[0], f"'[{''.join(sorted(ALLOWED_CHARACTERS))}]+'")
+    print("Example:", sys.argv[0], "'1011||='")
+    sys.exit(1)
+try:
+    answer = eval_formula(s)
+except (AssertionError, IndexError):
+    answer = "malformatted"
+print(s, "is", answer)
