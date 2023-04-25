@@ -1,6 +1,7 @@
 from string import ascii_uppercase
+from .utils import BINARY_OPERATIONS
 
-BINARY_OPERATORS = "&|^>="
+BINARY_OPERATORS = "".join(BINARY_OPERATIONS.keys())
 BOOLEANS = "01"
 
 
@@ -11,7 +12,7 @@ def is_valid_formula(formula):
         return False
     n = 0
     for c in formula:
-        n += c in BOOLEANS or c.isupper() - c in BINARY_OPERATORS
+        n += (c in BOOLEANS or c.isupper()) - (c in BINARY_OPERATORS)
         if n <= 0:
             return False
     return n == 1

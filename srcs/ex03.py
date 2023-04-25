@@ -1,12 +1,9 @@
-from operator import and_, eq, or_, xor
-
-OPERATIONS = {"|": or_, "&": and_, "^": xor, ">": lambda a, b: not a or b, "=": eq}
-ALLOWED_CHARACTERS = set("01!|&>=^")
+from .formula_checks import is_valid_explicit_formula
+from .utils import BINARY_OPERATIONS
 
 
 def eval_formula(formula):
-    assert type(formula) == str and set(formula) <= ALLOWED_CHARACTERS
-    assert all(not c.isupper() for c in formula)
+    assert is_valid_explicit_formula(formula)
     stack = []
     for c in formula:
         if c in "01":
@@ -16,6 +13,5 @@ def eval_formula(formula):
         else:
             a = stack.pop()
             b = stack.pop()
-            stack.append(OPERATIONS[c](b, a))
-    assert len(stack) == 1
+            stack.append(BINARY_OPERATIONS[c](b, a))
     return stack[0]

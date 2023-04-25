@@ -98,7 +98,7 @@ def test_eval_formula_error():
         eval_formula(42)
     with pytest.raises(AssertionError):
         eval_formula("")
-    with pytest.raises(IndexError):
+    with pytest.raises(AssertionError):
         eval_formula("10||")
     with pytest.raises(AssertionError):
         eval_formula("111|")
