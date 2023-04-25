@@ -1,4 +1,4 @@
-from srcs.ex03 import eval_formula
+from .ex03 import eval_formula
 from itertools import product
 from string import ascii_uppercase
 

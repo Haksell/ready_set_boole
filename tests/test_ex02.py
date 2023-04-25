@@ -1,4 +1,4 @@
-from srcs.ex02 import gray_code
+from ..srcs.ex02 import gray_code
 
 
 def test_gray_code():
