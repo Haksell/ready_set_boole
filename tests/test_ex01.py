@@ -1,6 +1,6 @@
 from random import randint
-from ..srcs.ex01 import multiplier
-from ..srcs.utils import UINT_MAX
+from srcs.ex01 import multiplier
+from srcs.utils import UINT_MAX
 
 
 def test_multiplier_small():

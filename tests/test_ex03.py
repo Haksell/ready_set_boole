@@ -1,4 +1,4 @@
-from ..srcs.ex03 import eval_formula
+from srcs.ex03 import eval_formula
 import pytest
 
 

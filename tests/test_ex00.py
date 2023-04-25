@@ -1,5 +1,5 @@
-from ..srcs.ex00 import adder
-from ..srcs.utils import UINT_MAX
+from srcs.ex00 import adder
+from srcs.utils import UINT_MAX
 from random import randint
 
 
