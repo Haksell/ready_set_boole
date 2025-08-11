@@ -39,12 +39,12 @@ pub fn negation_normal_form(formula: &str) -> String {
     tree.to_formula()
 }
 
-pub fn conjunctive_normal_form(formula: &str) -> String {
-    let mut tree = BooleanTree::new(&formula, true)
-        .unwrap_or_else(|err| panic!("failed to parse formula \"{formula}\": {err}"));
-    tree.make_cnf();
-    tree.to_formula()
-}
+// pub fn conjunctive_normal_form(formula: &str) -> String {
+//     let mut tree = BooleanTree::new(&formula, true)
+//         .unwrap_or_else(|err| panic!("failed to parse formula \"{formula}\": {err}"));
+//     tree.make_cnf();
+//     tree.to_formula()
+// }
 
 #[cfg(test)]
 mod tests {
