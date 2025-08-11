@@ -293,34 +293,34 @@ impl BooleanTree {
         self.remove_double_negation();
     }
 
-    // pub fn _is_cnf(&self, and_allowed: bool) -> bool {
-    //     match self {
-    //         BooleanTree::Value(_) | BooleanTree::Variable(_) => true,
-    //         BooleanTree::Not(node) => match **node {
-    //             BooleanTree::Value(_) | BooleanTree::Variable(_) => true,
-    //             _ => false,
-    //         },
-    //         BooleanTree::Or(node1, node2) => node1._is_cnf(false) && node2._is_cnf(false),
-    //         BooleanTree::And(node1, node2) => {
-    //             if and_allowed {
-    //                 node1._is_cnf(true) && node2._is_cnf(true)
-    //             } else {
-    //                 false
-    //             }
-    //         }
-    //         BooleanTree::Xor(..)
-    //         | BooleanTree::Implication(..)
-    //         | BooleanTree::Equivalence(..) => false,
-    //     }
-    // }
+    fn _is_cnf(&self, and_allowed: bool) -> bool {
+        match self {
+            BooleanTree::Value(_) | BooleanTree::Variable(_) => true,
+            BooleanTree::Not(node) => match **node {
+                BooleanTree::Value(_) | BooleanTree::Variable(_) => true,
+                _ => false,
+            },
+            BooleanTree::Or(node1, node2) => node1._is_cnf(false) && node2._is_cnf(false),
+            BooleanTree::And(node1, node2) => {
+                if and_allowed {
+                    node1._is_cnf(true) && node2._is_cnf(true)
+                } else {
+                    false
+                }
+            }
+            BooleanTree::Xor(..) | BooleanTree::Implication(..) | BooleanTree::Equivalence(..) => {
+                false
+            }
+        }
+    }
 
-    // pub fn is_cnf(&self) -> bool {
-    //     self._is_cnf(true)
-    // }
+    pub fn is_cnf(&self) -> bool {
+        self._is_cnf(true)
+    }
 
-    // pub fn to_cnf(&mut self) -> Self {
-    //     self.clone()
-    // }
+    pub fn make_cnf(&mut self) {
+        self.make_nnf();
+    }
 }
 
 #[cfg(test)]
@@ -355,83 +355,88 @@ mod tests {
 
     #[test]
     fn test_make_nnf() {
-        fn check_nnf(formula: &str) -> bool {
+        fn check_nnf(formula: &str) {
             let mut bt = BooleanTree::new(formula, true).unwrap();
+            let initial_formula = bt.to_formula();
             let truth_table_before = bt.compute_truth_table();
             bt.make_nnf();
+            assert!(
+                bt.is_nnf(),
+                "{:?} is not in negation normal form",
+                bt.to_formula()
+            );
             let truth_table_after = bt.compute_truth_table();
-            bt.is_nnf() && truth_table_before == truth_table_after
+            assert!(
+                truth_table_before == truth_table_after,
+                "{:?} (before) and {:?} (after) do not have the same truth table",
+                initial_formula,
+                bt.to_formula()
+            );
         }
 
-        assert!(check_nnf("A"));
-        assert!(check_nnf("A!"));
-        assert!(check_nnf("A!!"));
-        assert!(check_nnf("A!!!"));
-        assert!(check_nnf("A!!!!"));
-        assert!(check_nnf("A!!!!!"));
-        assert!(check_nnf("A!!!!!!"));
-        assert!(check_nnf("AB>"));
-        assert!(check_nnf("A!B|"));
-        assert!(check_nnf("AB="));
-        assert!(check_nnf("AB&A!B!&|"));
-        assert!(check_nnf("AB|!"));
-        assert!(check_nnf("A!B!&"));
-        assert!(check_nnf("AB&!"));
-        assert!(check_nnf("A!B!|"));
-        assert!(check_nnf("AB|C&!"));
-        assert!(check_nnf("A!B!&C!|"));
-        assert!(check_nnf("AB|C&!D!&"));
-        assert!(check_nnf("ABCDE>>>>"));
-        assert!(check_nnf("ABCDE===="));
-        assert!(check_nnf("ABCDE^^^^"));
-        assert!(check_nnf("A!B!!C!!!D!!!!E!!!!!>>>>"));
-        assert!(check_nnf("A!B!!C!!!D!!!!E!!!!!===="));
-        assert!(check_nnf("A!B!!C!!!D!!!!E!!!!!^^^^"));
+        check_nnf("A");
+        check_nnf("A!");
+        check_nnf("A!!");
+        check_nnf("A!!!");
+        check_nnf("A!!!!");
+        check_nnf("A!!!!!");
+        check_nnf("A!!!!!!");
+        check_nnf("AB>");
+        check_nnf("A!B|");
+        check_nnf("AB=");
+        check_nnf("AB&A!B!&|");
+        check_nnf("AB|!");
+        check_nnf("A!B!&");
+        check_nnf("AB&!");
+        check_nnf("A!B!|");
+        check_nnf("AB|C&!");
+        check_nnf("A!B!&C!|");
+        check_nnf("AB|C&!D!&");
+        check_nnf("ABCDE>>>>");
+        check_nnf("ABCDE====");
+        check_nnf("ABCDE^^^^");
+        check_nnf("A!B!!C!!!D!!!!E!!!!!>>>>");
+        check_nnf("A!B!!C!!!D!!!!E!!!!!====");
+        check_nnf("A!B!!C!!!D!!!!E!!!!!^^^^");
+    }
+
+    #[test]
+    fn test_is_cnf() {
+        assert!(!BooleanTree::new("ABCD&|&", true).unwrap().is_cnf());
+        assert!(BooleanTree::new("ABC|BD|&&", true).unwrap().is_cnf());
+
+        assert!(!BooleanTree::new("AB&!", true).unwrap().is_cnf());
+        assert!(BooleanTree::new("A!B!|", true).unwrap().is_cnf());
+
+        assert!(!BooleanTree::new("AB|!", true).unwrap().is_cnf());
+        assert!(BooleanTree::new("A!B!&", true).unwrap().is_cnf());
+
+        assert!(BooleanTree::new("AB|C&", true).unwrap().is_cnf());
+
+        assert!(BooleanTree::new("AB|C|D|", true).unwrap().is_cnf());
+        assert!(BooleanTree::new("ABCD|||", true).unwrap().is_cnf());
+
+        assert!(BooleanTree::new("AB&C&D&", true).unwrap().is_cnf());
+        assert!(BooleanTree::new("ABCD&&&", true).unwrap().is_cnf());
+
+        assert!(!BooleanTree::new("AB&!C!|", true).unwrap().is_cnf());
+        assert!(BooleanTree::new("A!B!C!||", true).unwrap().is_cnf());
+
+        assert!(!BooleanTree::new("AB|!C!&", true).unwrap().is_cnf());
+        assert!(BooleanTree::new("A!B!C!&&", true).unwrap().is_cnf());
+
+        assert!(BooleanTree::new("ABC||DEF||&", true).unwrap().is_cnf());
+        assert!(!BooleanTree::new("ABC&&DEF&&|", true).unwrap().is_cnf());
     }
 
     // #[test]
-    // fn test_is_cnf() {
-    //     assert!(!BooleanTree::new("ABCD&|&", true).unwrap().is_cnf());
-    //     assert!(BooleanTree::new("ABC|BD|&&", true).unwrap().is_cnf());
-
-    //     assert!(!BooleanTree::new("AB&!", true).unwrap().is_cnf());
-    //     assert!(BooleanTree::new("A!B!|", true).unwrap().is_cnf());
-
-    //     assert!(!BooleanTree::new("AB|!", true).unwrap().is_cnf());
-    //     assert!(BooleanTree::new("A!B!&", true).unwrap().is_cnf());
-
-    //     assert!(BooleanTree::new("AB|C&", true).unwrap().is_cnf());
-
-    //     assert!(BooleanTree::new("AB|C|D|", true).unwrap().is_cnf());
-    //     assert!(BooleanTree::new("ABCD|||", true).unwrap().is_cnf());
-
-    //     assert!(BooleanTree::new("AB&C&D&", true).unwrap().is_cnf());
-    //     assert!(BooleanTree::new("ABCD&&&", true).unwrap().is_cnf());
-
-    //     assert!(!BooleanTree::new("AB&!C!|", true).unwrap().is_cnf());
-    //     assert!(BooleanTree::new("A!B!C!||", true).unwrap().is_cnf());
-
-    //     assert!(!BooleanTree::new("AB|!C!&", true).unwrap().is_cnf());
-    //     assert!(BooleanTree::new("A!B!C!&&", true).unwrap().is_cnf());
-
-    //     assert!(BooleanTree::new("ABC||DEF||&", true).unwrap().is_cnf());
-    //     assert!(!BooleanTree::new("ABC&&DEF&&|", true).unwrap().is_cnf());
-    // }
-
-    // #[test]
-    // fn test_to_cnf() {
+    // fn test_make_cnf() {
     //     fn check_cnf(formula: &str) -> bool {
     //         let mut bt = BooleanTree::new(formula, true).unwrap();
     //         let truth_table_before = bt.compute_truth_table();
-    //         let cnf = bt.to_cnf();
-    //         println!("{} -> {}", formula, cnf.to_formula());
-    //         let truth_table_after = cnf.compute_truth_table();
-    //         println!(
-    //             "{} {}",
-    //             cnf.is_cnf(),
-    //             truth_table_before == truth_table_after
-    //         );
-    //         cnf.is_cnf() && truth_table_before == truth_table_after
+    //         bt.make_cnf();
+    //         let truth_table_after = bt.compute_truth_table();
+    //         bt.is_cnf() && truth_table_before == truth_table_after
     //     }
 
     //     assert!(check_cnf("A"));
