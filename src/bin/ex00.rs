@@ -14,7 +14,7 @@ fn main() {
         })
         .collect();
 
-    let lhs = nums.iter().map(|n| n.to_string()).join(" + ");
+    let lhs = nums.iter().map(u32::to_string).join(" + ");
     let rhs = nums.iter().fold(0, |sum, &n| adder(sum, n));
     println!("{lhs} = {rhs}");
 }
