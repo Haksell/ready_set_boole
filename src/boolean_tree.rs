@@ -18,6 +18,9 @@ static BINARY_NODES: LazyLock<HashMap<char, BinaryNode>> = LazyLock::new(|| {
     ])
 });
 
+// TODO: ExpressionTree<T>
+// where T is bool or HashSet<...>
+
 #[derive(Clone, Debug)]
 pub enum BooleanTree {
     Value(bool),
