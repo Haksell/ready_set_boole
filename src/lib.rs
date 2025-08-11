@@ -6,7 +6,9 @@ mod space_filling_curves;
 mod truth_table;
 
 pub use {
-    boolean_tree::BooleanTree, eval_formula::eval_formula, space_filling_curves::map,
+    boolean_tree::BooleanTree,
+    eval_formula::eval_formula,
+    space_filling_curves::{map, reverse_map},
     truth_table::print_truth_table,
 };
 

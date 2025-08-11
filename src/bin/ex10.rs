@@ -1,5 +1,4 @@
-use itertools::Itertools;
-use ready_set_boole::map;
+use {itertools::Itertools, ready_set_boole::map};
 
 fn main() {
     let (x, y) = std::env::args()
