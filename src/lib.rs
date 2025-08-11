@@ -2,6 +2,7 @@
 
 mod boolean_tree;
 mod eval_formula;
+mod space_filling_curves;
 mod truth_table;
 
 pub use {boolean_tree::BooleanTree, eval_formula::eval_formula, truth_table::print_truth_table};
