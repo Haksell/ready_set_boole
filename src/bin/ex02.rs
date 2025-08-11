@@ -1,4 +1,4 @@
-use rusty_set_boole::gray_code;
+use ready_set_boole::gray_code;
 
 fn main() {
     for i in 0..21 {

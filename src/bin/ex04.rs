@@ -1,4 +1,4 @@
-use rusty_set_boole::print_truth_table;
+use ready_set_boole::print_truth_table;
 
 fn main() {
     print_truth_table(&std::env::args().nth(1).expect(&format!(

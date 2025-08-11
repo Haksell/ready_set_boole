@@ -1,4 +1,4 @@
-use rusty_set_boole::eval_formula;
+use ready_set_boole::eval_formula;
 
 fn main() {
     let formula = std::env::args()

@@ -1,5 +1,5 @@
 [package]
-name = "rusty_set_boole"
+name = "ready_set_boole"
 version = "0.1.0"
 edition = "2024"
 

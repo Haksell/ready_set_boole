@@ -1,4 +1,4 @@
-use rusty_set_boole::negation_normal_form;
+use ready_set_boole::negation_normal_form;
 
 fn main() {
     let formula = std::env::args().nth(1).expect(&format!(

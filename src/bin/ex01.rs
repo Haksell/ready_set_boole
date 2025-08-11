@@ -1,4 +1,4 @@
-use rusty_set_boole::multiplier;
+use ready_set_boole::multiplier;
 
 fn main() {
     assert!(

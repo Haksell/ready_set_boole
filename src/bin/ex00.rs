@@ -1,4 +1,4 @@
-use {itertools::Itertools, rusty_set_boole::adder};
+use {itertools::Itertools, ready_set_boole::adder};
 
 fn main() {
     let args = std::env::args().skip(1).collect_vec();
