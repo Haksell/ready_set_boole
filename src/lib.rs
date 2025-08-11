@@ -60,10 +60,10 @@ mod tests {
 
     #[test]
     fn test_adder_random() {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
         for _ in 0..42 {
-            let i = rng.gen_range(0..u32::MAX);
-            let j = rng.gen_range(0..u32::MAX);
+            let i = rng.random_range(0..u32::MAX);
+            let j = rng.random_range(0..u32::MAX);
             assert_eq!(adder(i, j), i.wrapping_add(j));
         }
     }
@@ -80,10 +80,10 @@ mod tests {
 
     #[test]
     fn test_multiplier_random() {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
         for _ in 0..42 {
-            let i = rng.gen_range(0..u32::MAX);
-            let j = rng.gen_range(0..u32::MAX);
+            let i = rng.random_range(0..u32::MAX);
+            let j = rng.random_range(0..u32::MAX);
             println!("{i}*{j}={}", multiplier(i, j));
             assert_eq!(multiplier(i, j), i.wrapping_mul(j));
             println!();
