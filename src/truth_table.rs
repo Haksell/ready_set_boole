@@ -10,21 +10,21 @@ fn compute_truth_table(formula: &str) -> (Vec<char>, Vec<Vec<bool>>) {
 pub fn print_truth_table(formula: &str) {
     let (variables, truth_table) = compute_truth_table(formula);
     println!(
-        "| {}= |",
+        "| {} | = |",
         variables
             .iter()
-            .map(|c| format!("{c} | "))
+            .map(char::to_string)
             .collect::<Vec<String>>()
-            .join("")
+            .join(" | ")
     );
     println!("{}", ["|"].repeat(variables.len() + 2).join("---"));
     for line in truth_table {
         println!(
-            "| {}",
+            "| {} |",
             line.iter()
-                .map(|&b| if b { "1 | " } else { "0 | " }.to_string())
+                .map(|&b| (b as isize).to_string())
                 .collect::<Vec<String>>()
-                .join(""),
+                .join(" | "),
         );
     }
 }
