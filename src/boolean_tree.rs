@@ -188,9 +188,9 @@ impl BooleanTree {
             BooleanTree::Or(node1, node2) | BooleanTree::And(node1, node2) => {
                 node1.is_nnf() && node2.is_nnf()
             }
-            BooleanTree::Xor(_, _)
-            | BooleanTree::Implication(_, _)
-            | BooleanTree::Equivalence(_, _) => false,
+            BooleanTree::Xor(..) | BooleanTree::Implication(..) | BooleanTree::Equivalence(..) => {
+                false
+            }
         }
     }
 
@@ -308,9 +308,9 @@ impl BooleanTree {
     //                 false
     //             }
     //         }
-    //         BooleanTree::Xor(_, _)
-    //         | BooleanTree::Implication(_, _)
-    //         | BooleanTree::Equivalence(_, _) => false,
+    //         BooleanTree::Xor(..)
+    //         | BooleanTree::Implication(..)
+    //         | BooleanTree::Equivalence(..) => false,
     //     }
     // }
 
