@@ -1,4 +1,5 @@
 use itertools::Itertools;
+use ready_set_boole::map;
 
 fn main() {
     let (x, y) = std::env::args()
@@ -10,5 +11,5 @@ fn main() {
         .collect_tuple()
         .expect("Usage: cargo run -q --bin ex10 x y");
 
-    println!("x={x} y={y}");
+    println!("({}, {}) => {}", x, y, map(x, y));
 }
