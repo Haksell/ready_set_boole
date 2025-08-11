@@ -184,10 +184,9 @@ impl BooleanTree {
     pub fn is_nnf(&self) -> bool {
         match self {
             BooleanTree::Value(_) | BooleanTree::Variable(_) => true,
-            BooleanTree::Not(node) => match **node {
-                BooleanTree::Value(_) | BooleanTree::Variable(_) => true,
-                _ => false,
-            },
+            BooleanTree::Not(node) => {
+                matches!(**node, BooleanTree::Value(_) | BooleanTree::Variable(_))
+            }
             BooleanTree::Or(node1, node2) | BooleanTree::And(node1, node2) => {
                 node1.is_nnf() && node2.is_nnf()
             }
@@ -299,17 +298,12 @@ impl BooleanTree {
     fn _is_cnf(&self, and_allowed: bool) -> bool {
         match self {
             BooleanTree::Value(_) | BooleanTree::Variable(_) => true,
-            BooleanTree::Not(node) => match **node {
-                BooleanTree::Value(_) | BooleanTree::Variable(_) => true,
-                _ => false,
-            },
+            BooleanTree::Not(node) => {
+                matches!(**node, BooleanTree::Value(_) | BooleanTree::Variable(_))
+            }
             BooleanTree::Or(node1, node2) => node1._is_cnf(false) && node2._is_cnf(false),
             BooleanTree::And(node1, node2) => {
-                if and_allowed {
-                    node1._is_cnf(true) && node2._is_cnf(true)
-                } else {
-                    false
-                }
+                and_allowed && node1._is_cnf(true) && node2._is_cnf(true)
             }
             BooleanTree::Xor(..) | BooleanTree::Implication(..) | BooleanTree::Equivalence(..) => {
                 false
@@ -321,11 +315,12 @@ impl BooleanTree {
         self._is_cnf(true)
     }
 
-    // pub fn make_cnf(&mut self) {
-    //     self.make_nnf();
-    //     ...
-    // }
+    pub fn make_cnf(&mut self) {
+        self.make_nnf();
+    }
 }
+
+// TODO: think about make_{cnf|nnf} or to_{cnf|nnf}
 
 #[cfg(test)]
 mod tests {
@@ -434,53 +429,53 @@ mod tests {
         assert!(!BooleanTree::new("ABC&&DEF&&|", true).unwrap().is_cnf());
     }
 
-    // #[test]
-    // fn test_make_cnf() {
-    //     fn check_cnf(formula: &str) {
-    //         let mut bt = BooleanTree::new(formula, true).unwrap();
-    //         let initial_formula = bt.to_formula();
-    //         let truth_table_before = bt.compute_truth_table();
-    //         bt.make_cnf();
-    //         assert!(
-    //             bt.is_cnf(),
-    //             "{:?}.to_cnf() = {:?} is not in conjunctive normal form",
-    //             initial_formula,
-    //             bt.to_formula()
-    //         );
-    //         let truth_table_after = bt.compute_truth_table();
-    //         assert!(
-    //             truth_table_before == truth_table_after,
-    //             "{:?} (before) and {:?} (after) do not have the same truth table",
-    //             initial_formula,
-    //             bt.to_formula()
-    //         );
-    //     }
+    #[test]
+    fn test_make_cnf() {
+        fn check_cnf(formula: &str) {
+            let mut bt = BooleanTree::new(formula, true).unwrap();
+            let initial_formula = bt.to_formula();
+            let truth_table_before = bt.compute_truth_table();
+            bt.make_cnf();
+            assert!(
+                bt.is_cnf(),
+                "{:?}.to_cnf() = {:?} is not in conjunctive normal form",
+                initial_formula,
+                bt.to_formula()
+            );
+            let truth_table_after = bt.compute_truth_table();
+            assert!(
+                truth_table_before == truth_table_after,
+                "{:?} (before) and {:?} (after) do not have the same truth table",
+                initial_formula,
+                bt.to_formula()
+            );
+        }
 
-    //     check_cnf("A");
-    //     check_cnf("A!");
-    //     check_cnf("A!!");
-    //     check_cnf("A!!!");
-    //     check_cnf("A!!!!");
-    //     check_cnf("A!!!!!");
-    //     check_cnf("A!!!!!!");
-    //     check_cnf("AB>");
-    //     check_cnf("A!B|");
-    //     check_cnf("AB=");
-    //     check_cnf("AB&A!B!&|");
-    //     check_cnf("AB|!");
-    //     check_cnf("A!B!&");
-    //     check_cnf("AB&!");
-    //     check_cnf("A!B!|");
-    //     check_cnf("AB|C&!");
-    //     check_cnf("A!B!&C!|");
-    //     check_cnf("AB|C&!D!&");
-    //     check_cnf("ABCDE>>>>");
-    //     check_cnf("ABCDE====");
-    //     check_cnf("ABCDE^^^^");
-    //     check_cnf("A!B!!C!!!D!!!!E!!!!!>>>>");
-    //     check_cnf("A!B!!C!!!D!!!!E!!!!!====");
-    //     check_cnf("A!B!!C!!!D!!!!E!!!!!^^^^");
-    //     check_cnf("AB&CD&|");
-    //     check_cnf("AC>BCD&&!&");
-    // }
+        check_cnf("A");
+        check_cnf("A!");
+        check_cnf("A!!");
+        check_cnf("A!!!");
+        check_cnf("A!!!!");
+        check_cnf("A!!!!!");
+        check_cnf("A!!!!!!");
+        check_cnf("AB>");
+        check_cnf("A!B|");
+        check_cnf("AB=");
+        check_cnf("AB&A!B!&|");
+        check_cnf("AB|!");
+        check_cnf("A!B!&");
+        check_cnf("AB&!");
+        check_cnf("A!B!|");
+        check_cnf("AB|C&!");
+        check_cnf("A!B!&C!|");
+        check_cnf("AB|C&!D!&");
+        check_cnf("ABCDE>>>>");
+        check_cnf("ABCDE====");
+        check_cnf("ABCDE^^^^");
+        check_cnf("A!B!!C!!!D!!!!E!!!!!>>>>");
+        check_cnf("A!B!!C!!!D!!!!E!!!!!====");
+        check_cnf("A!B!!C!!!D!!!!E!!!!!^^^^");
+        check_cnf("AB&CD&|");
+        check_cnf("AC>BCD&&!&");
+    }
 }
