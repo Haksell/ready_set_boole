@@ -1,20 +1,22 @@
 use {
     itertools::Itertools,
-    lazy_static::lazy_static,
-    std::collections::{HashMap, HashSet},
+    std::{
+        collections::{HashMap, HashSet},
+        sync::LazyLock,
+    },
 };
 
 pub type BinaryNode = fn(Box<BooleanTree>, Box<BooleanTree>) -> BooleanTree;
 
-lazy_static! {
-    pub static ref BINARY_NODES: HashMap<char, BinaryNode> = HashMap::from([
+static BINARY_NODES: LazyLock<HashMap<char, BinaryNode>> = LazyLock::new(|| {
+    HashMap::from([
         ('|', BooleanTree::Or as BinaryNode),
         ('&', BooleanTree::And as BinaryNode),
         ('^', BooleanTree::Xor as BinaryNode),
         ('>', BooleanTree::Implication as BinaryNode),
         ('=', BooleanTree::Equivalence as BinaryNode),
-    ]);
-}
+    ])
+});
 
 #[derive(Clone, Debug)]
 pub enum BooleanTree {
