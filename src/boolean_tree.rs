@@ -30,6 +30,16 @@ pub enum BooleanTree {
     Equivalence(Box<BooleanTree>, Box<BooleanTree>),
 }
 
+/* TODO: rewrite rules to implement
+elimination of double negation: (~~A) <=> (A)
+material conditions: (A => B) <=> (~A | B)
+equivalence: (A <=> B) <=> ((A => B) & (B => A))
+de morgan's 1: ~(A | B) <=> (~A & ~B)
+de morgan's 2: ~(A & B) <=> (~A | ~B)
+distributivity 1: (A & (B | C)) <=> ((A & B) | (A & C)))
+distributivity 2: (A | (B & C)) <=> ((A | B) & (A | C)))
+*/
+
 impl BooleanTree {
     pub fn new(formula: &str, is_algebraic: bool) -> Result<Self, &'static str> {
         let mut stack = vec![];
