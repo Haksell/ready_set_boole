@@ -9,7 +9,7 @@ pub fn eval_formula(formula: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use super::eval_formula;
+    use super::*;
 
     #[test]
     fn test_eval_formula_unary() {

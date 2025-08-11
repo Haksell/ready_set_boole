@@ -4,9 +4,7 @@ mod boolean_tree;
 mod eval_formula;
 mod truth_table;
 
-pub use boolean_tree::BooleanTree;
-pub use eval_formula::eval_formula;
-pub use truth_table::print_truth_table;
+pub use {boolean_tree::BooleanTree, eval_formula::eval_formula, truth_table::print_truth_table};
 
 pub fn adder(a: u32, b: u32) -> u32 {
     let mut res = 0;
@@ -41,16 +39,15 @@ pub fn negation_normal_form(formula: &str) -> String {
     tree.to_formula()
 }
 
-pub fn conjunctive_normal_form(formula: &str) -> String {
-    let mut tree = BooleanTree::new(&formula, true)
-        .unwrap_or_else(|err| panic!("failed to parse formula \"{formula}\": {err}"));
-    tree.to_cnf().to_formula()
-}
+// pub fn conjunctive_normal_form(formula: &str) -> String {
+//     let mut tree = BooleanTree::new(&formula, true)
+//         .unwrap_or_else(|err| panic!("failed to parse formula \"{formula}\": {err}"));
+//     tree.to_cnf().to_formula()
+// }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use rand::Rng;
+    use {super::*, rand::Rng};
 
     #[test]
     fn test_addition_table() {
