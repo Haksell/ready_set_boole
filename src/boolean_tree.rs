@@ -38,36 +38,36 @@ impl BooleanTree {
         let mut stack = vec![];
         for c in formula.chars() {
             if c == '0' {
-                stack.push(Box::new(BooleanTree::Value(false)));
+                stack.push(BooleanTree::Value(false));
             } else if c == '1' {
-                stack.push(Box::new(BooleanTree::Value(true)));
+                stack.push(BooleanTree::Value(true));
             } else if is_algebraic && c.is_ascii_uppercase() {
-                stack.push(Box::new(BooleanTree::Variable(c)));
+                stack.push(BooleanTree::Variable(c));
             } else if c == '!' {
                 if stack.is_empty() {
                     return Err("no operand for binary not");
                 }
                 let opposite = stack.pop().unwrap();
-                stack.push(Box::new(BooleanTree::Not(opposite)));
+                stack.push(BooleanTree::Not(Box::new(opposite)));
             } else if let Some(binary_node) = BINARY_NODES.get(&c) {
                 if stack.len() < 2 {
                     return Err("not enough operands for binary operation");
                 }
                 let a = stack.pop().unwrap();
                 let b = stack.pop().unwrap();
-                stack.push(Box::new(binary_node(b, a)));
+                stack.push(binary_node(Box::new(b), Box::new(a)));
             } else {
                 return Err("invalid character");
             }
         }
+
         match stack.len() {
             0 => Err("empty formula"),
-            1 => Ok(*stack[0].clone()),
+            1 => Ok(stack.pop().unwrap()),
             _ => Err("not enough operators"),
         }
     }
 
-    // TODO: hashmap of characters
     pub fn to_formula(&self) -> String {
         match self {
             BooleanTree::Value(false) => "0".to_string(),
