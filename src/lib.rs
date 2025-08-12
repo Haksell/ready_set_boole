@@ -1,7 +1,7 @@
 // TODO: nothing in lib.rs
 
 mod boolean_tree;
-mod eval_formula;
+mod formulas;
 mod numbers;
 mod space_filling_curves;
 mod truth_table;
@@ -16,32 +16,11 @@ use {
 
 pub use {
     boolean_tree::BooleanTree,
-    eval_formula::eval_formula,
+    formulas::{conjunctive_normal_form, eval_formula, negation_normal_form, sat},
     numbers::{adder, gray_code, multiplier},
     space_filling_curves::{map, reverse_map},
     truth_table::print_truth_table,
 };
-
-fn parse_formula(formula: &str) -> BooleanTree {
-    BooleanTree::new(&formula, true)
-        .unwrap_or_else(|err| panic!("failed to parse formula \"{formula}\": {err}"))
-}
-
-pub fn negation_normal_form(formula: &str) -> String {
-    let mut tree = parse_formula(formula);
-    tree.make_nnf();
-    tree.to_formula()
-}
-
-pub fn conjunctive_normal_form(formula: &str) -> String {
-    let mut tree = parse_formula(formula);
-    tree.make_cnf();
-    tree.to_formula()
-}
-
-pub fn sat(formula: &str) -> bool {
-    parse_formula(formula).is_satisfiable()
-}
 
 // &HashSet would make more sense as input but gotta respect the subject
 pub fn powerset(set: Vec<i32>) -> Vec<Vec<i32>> {
@@ -124,20 +103,6 @@ pub fn eval_set(formula: &str, sets: Vec<Vec<i32>>) -> Vec<i32> {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn test_sat() {
-        assert!(!sat("0"));
-        assert!(sat("1"));
-        assert!(sat("0!"));
-        assert!(!sat("1!"));
-        assert!(sat("A"));
-        assert!(!sat("AA!&"));
-        assert!(sat("AB|"));
-        assert!(sat("AB&"));
-        assert!(!sat("AA^"));
-        assert!(!sat("ABCD^^^ABCD===&"));
-    }
 
     #[test]
     fn test_powerset() {
