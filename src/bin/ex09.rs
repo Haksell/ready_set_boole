@@ -4,7 +4,7 @@ fn main() {
     let mut args = std::env::args().skip(1);
     let formula = args
         .next()
-        .expect("Usage: cargo run -q --bin ex10 <formula> \"<a1 a2 ...>\" \"<b1 b2 ...>\" ...");
+        .expect("Usage: cargo run -q --bin ex09 <formula> \"<a1 a2 ...>\" \"<b1 b2 ...>\" ...");
     let sets: Vec<Vec<i32>> = args
         .map(|set| {
             set.split_whitespace()
