@@ -162,6 +162,10 @@ mod tests {
     fn test_eval_one_set() {
         assert_eq!(eval_set("A", vec![vec![0, 1, 2]]), vec![0, 1, 2]);
         assert_eq!(eval_set("A!", vec![vec![0, 1, 2]]), vec![]);
+        assert_eq!(
+            eval_set("A!", vec![vec![0, 1, 2], vec![2, 3, 4]]),
+            vec![3, 4]
+        );
         assert_eq!(eval_set("A!!", vec![vec![0, 1, 2]]), vec![0, 1, 2]);
     }
 
@@ -179,6 +183,10 @@ mod tests {
         assert_eq!(eval_set("AB=", vec![vec![0, 1, 2], vec![0, 3, 4]]), [0]);
         assert_eq!(
             eval_set("AB>", vec![vec![0, 1, 2], vec![0, 3, 4]]),
+            [0, 3, 4]
+        );
+        assert_eq!(
+            eval_set("BC>", vec![vec![], vec![0, 1, 2], vec![0, 3, 4]]),
             [0, 3, 4]
         );
     }
