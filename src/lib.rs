@@ -38,18 +38,25 @@ pub fn gray_code(n: u32) -> u32 {
     n ^ n >> 1
 }
 
+fn parse_formula(formula: &str) -> BooleanTree {
+    BooleanTree::new(&formula, true)
+        .unwrap_or_else(|err| panic!("failed to parse formula \"{formula}\": {err}"))
+}
+
 pub fn negation_normal_form(formula: &str) -> String {
-    let mut tree = BooleanTree::new(&formula, true)
-        .unwrap_or_else(|err| panic!("failed to parse formula \"{formula}\": {err}"));
+    let mut tree = parse_formula(formula);
     tree.make_nnf();
     tree.to_formula()
 }
 
 pub fn conjunctive_normal_form(formula: &str) -> String {
-    let mut tree = BooleanTree::new(&formula, true)
-        .unwrap_or_else(|err| panic!("failed to parse formula \"{formula}\": {err}"));
+    let mut tree = parse_formula(formula);
     tree.make_cnf();
     tree.to_formula()
+}
+
+pub fn sat(formula: &str) -> bool {
+    parse_formula(formula).is_satisfiable()
 }
 
 #[cfg(test)]
@@ -120,5 +127,19 @@ mod tests {
         assert_eq!(gray_code(18), 27);
         assert_eq!(gray_code(19), 26);
         assert_eq!(gray_code(20), 30);
+    }
+
+    #[test]
+    fn test_sat() {
+        assert!(!sat("0"));
+        assert!(sat("1"));
+        assert!(sat("0!"));
+        assert!(!sat("1!"));
+        assert!(sat("A"));
+        assert!(!sat("AA!&"));
+        assert!(sat("AB|"));
+        assert!(sat("AB&"));
+        assert!(!sat("AA^"));
+        assert!(!sat("ABCD^^^ABCD===&"));
     }
 }

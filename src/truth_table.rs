@@ -1,5 +1,3 @@
-use std::iter::zip;
-
 use crate::BooleanTree;
 
 fn compute_truth_table(formula: &str) -> (Vec<char>, Vec<Vec<bool>>, Vec<bool>) {
@@ -20,7 +18,7 @@ pub fn print_truth_table(formula: &str) {
             .join(" | ")
     );
     println!("{}", ["|"].repeat(variables.len() + 2).join("---"));
-    for (input, output) in zip(inputs.iter(), outputs.iter()) {
+    for (input, output) in std::iter::zip(inputs.iter(), outputs.iter()) {
         println!(
             "| {} | {} |",
             input
