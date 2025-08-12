@@ -1,3 +1,2 @@
-- ex06: remove clones (except one from xor/equivalence/distributivity)
 - check all executables
 - puuuuuuuush

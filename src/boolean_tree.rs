@@ -89,6 +89,10 @@ impl BooleanTree {
         }
     }
 
+    // =====================================================
+    // ======================= EVAL ========================
+    // =====================================================
+
     pub fn evaluate(&self) -> bool {
         self.evaluate_with_variables(&HashMap::new())
     }
@@ -200,20 +204,11 @@ impl BooleanTree {
         _is_satisfiable(self, &self.get_variables(), &mut HashMap::new())
     }
 
-    pub fn is_nnf(&self) -> bool {
-        match self {
-            BooleanTree::Value(_) | BooleanTree::Variable(_) => true,
-            BooleanTree::Not(node) => {
-                matches!(**node, BooleanTree::Value(_) | BooleanTree::Variable(_))
-            }
-            BooleanTree::Or(node1, node2) | BooleanTree::And(node1, node2) => {
-                node1.is_nnf() && node2.is_nnf()
-            }
-            BooleanTree::Xor(..) | BooleanTree::Implication(..) | BooleanTree::Equivalence(..) => {
-                false
-            }
-        }
-    }
+    // =====================================================
+    // =================== REWRITE RULES ===================
+    // =====================================================
+
+    // some clones could be avoided but are kept for clarity
 
     fn remove_forbidden_operations(&mut self) {
         match self {
@@ -309,35 +304,6 @@ impl BooleanTree {
         }
     }
 
-    pub fn make_nnf(&mut self) {
-        self.remove_forbidden_operations();
-        while self.apply_de_morgan() {}
-        self.remove_double_negation();
-    }
-
-    fn is_cnf_term(&self) -> bool {
-        match self {
-            BooleanTree::Value(_) | BooleanTree::Variable(_) => true,
-            BooleanTree::Not(node) => {
-                matches!(**node, BooleanTree::Value(_) | BooleanTree::Variable(_))
-            }
-            BooleanTree::Or(node1, node2) => node1.is_cnf_term() && node2.is_cnf_term(),
-            _ => false,
-        }
-    }
-
-    pub fn is_cnf(&self) -> bool {
-        match self {
-            BooleanTree::Value(_) | BooleanTree::Variable(_) => true,
-            BooleanTree::Not(node) => {
-                matches!(**node, BooleanTree::Value(_) | BooleanTree::Variable(_))
-            }
-            BooleanTree::Or(node1, node2) => node1.is_cnf_term() && node2.is_cnf_term(),
-            BooleanTree::And(node1, node2) => node1.is_cnf() && node2.is_cnf(),
-            _ => false,
-        }
-    }
-
     // assumes the tree is already in NNF
     fn apply_distributivity(&mut self) -> bool {
         match self {
@@ -372,6 +338,54 @@ impl BooleanTree {
             }
             _ => unreachable!(),
         }
+    }
+
+    // =====================================================
+    // =================== NORMAL FORMS ====================
+    // =====================================================
+
+    pub fn is_nnf(&self) -> bool {
+        match self {
+            BooleanTree::Value(_) | BooleanTree::Variable(_) => true,
+            BooleanTree::Not(node) => {
+                matches!(**node, BooleanTree::Value(_) | BooleanTree::Variable(_))
+            }
+            BooleanTree::Or(node1, node2) | BooleanTree::And(node1, node2) => {
+                node1.is_nnf() && node2.is_nnf()
+            }
+            BooleanTree::Xor(..) | BooleanTree::Implication(..) | BooleanTree::Equivalence(..) => {
+                false
+            }
+        }
+    }
+
+    fn is_cnf_term(&self) -> bool {
+        match self {
+            BooleanTree::Value(_) | BooleanTree::Variable(_) => true,
+            BooleanTree::Not(node) => {
+                matches!(**node, BooleanTree::Value(_) | BooleanTree::Variable(_))
+            }
+            BooleanTree::Or(node1, node2) => node1.is_cnf_term() && node2.is_cnf_term(),
+            _ => false,
+        }
+    }
+
+    pub fn is_cnf(&self) -> bool {
+        match self {
+            BooleanTree::Value(_) | BooleanTree::Variable(_) => true,
+            BooleanTree::Not(node) => {
+                matches!(**node, BooleanTree::Value(_) | BooleanTree::Variable(_))
+            }
+            BooleanTree::Or(node1, node2) => node1.is_cnf_term() && node2.is_cnf_term(),
+            BooleanTree::And(node1, node2) => node1.is_cnf() && node2.is_cnf(),
+            _ => false,
+        }
+    }
+
+    pub fn make_nnf(&mut self) {
+        self.remove_forbidden_operations();
+        while self.apply_de_morgan() {}
+        self.remove_double_negation();
     }
 
     pub fn make_cnf(&mut self) {
