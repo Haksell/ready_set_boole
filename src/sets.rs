@@ -205,5 +205,39 @@ mod tests {
         assert_eq!(eval_set("ABC>>", sets.clone()), [1, 3, 4]);
     }
 
-    // TODO: should_panic tests for eval_set
+    #[test]
+    #[should_panic]
+    fn test_eval_set_empty() {
+        eval_set("", vec![]);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_eval_set_empty_not() {
+        eval_set("!A", vec![vec![]]);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_eval_set_invalid_character() {
+        eval_set("01&", vec![]);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_eval_set_too_many_operations() {
+        eval_set("AB||", vec![vec![1, 2], vec![3, 4]]);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_eval_set_not_enough_operations() {
+        eval_set("AAA|", vec![vec![42]]);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_eval_set_not_enough_sets() {
+        eval_set("ABC&&", vec![vec![1, 2, 3], vec![3, 4, 5]]);
+    }
 }
