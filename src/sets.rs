@@ -24,37 +24,88 @@ pub fn powerset(set: Vec<i32>) -> Vec<Vec<i32>> {
     output
 }
 
+type SetOperation = fn(&HashSet<i32>, HashSet<i32>, HashSet<i32>) -> HashSet<i32>;
+
+static SET_OPERATIONS: LazyLock<HashMap<char, SetOperation>> = LazyLock::new(|| {
+    fn union_(_: &HashSet<i32>, mut a: HashSet<i32>, mut b: HashSet<i32>) -> HashSet<i32> {
+        if a.len() > b.len() {
+            a.extend(b);
+            a
+        } else {
+            b.extend(a);
+            b
+        }
+    }
+
+    fn intersection(_: &HashSet<i32>, mut a: HashSet<i32>, mut b: HashSet<i32>) -> HashSet<i32> {
+        if a.len() < b.len() {
+            a.retain(|x| b.contains(x));
+            a
+        } else {
+            b.retain(|x| a.contains(x));
+            b
+        }
+    }
+
+    fn symmetric_difference(
+        _: &HashSet<i32>,
+        mut a: HashSet<i32>,
+        mut b: HashSet<i32>,
+    ) -> HashSet<i32> {
+        if a.len() < b.len() {
+            [a, b] = [b, a];
+        }
+        for x in b {
+            if a.contains(&x) {
+                a.remove(&x);
+            } else {
+                a.insert(x);
+            }
+        }
+        a
+    }
+
+    fn equivalence(universe: &HashSet<i32>, a: HashSet<i32>, b: HashSet<i32>) -> HashSet<i32> {
+        universe
+            .iter()
+            .filter(|x| a.contains(&x) == b.contains(&x))
+            .copied()
+            .collect::<HashSet<i32>>()
+    }
+
+    fn material_condition(
+        universe: &HashSet<i32>,
+        a: HashSet<i32>,
+        mut b: HashSet<i32>,
+    ) -> HashSet<i32> {
+        b.extend(universe.difference(&a));
+        b
+    }
+
+    HashMap::from([
+        ('|', union_ as SetOperation),
+        ('&', intersection as SetOperation),
+        ('^', symmetric_difference as SetOperation),
+        ('=', equivalence as SetOperation),
+        ('>', material_condition as SetOperation),
+    ])
+});
+
 pub fn eval_set(formula: &str, sets: Vec<Vec<i32>>) -> Vec<i32> {
-    type SetOperation = fn(HashSet<i32>, HashSet<i32>) -> HashSet<i32>;
-
-    static SET_OPERATIONS: LazyLock<HashMap<char, SetOperation>> = LazyLock::new(|| {
-        fn union_(a: HashSet<i32>, b: HashSet<i32>) -> HashSet<i32> {
-            a.union(&b).copied().collect()
-        }
-
-        fn intersection(a: HashSet<i32>, b: HashSet<i32>) -> HashSet<i32> {
-            a.intersection(&b).copied().collect()
-        }
-
-        HashMap::from([
-            ('|', union_ as SetOperation),
-            ('&', intersection as SetOperation),
-        ])
-    });
-
     let universe: HashSet<i32> =
         HashSet::from_iter(sets.iter().flat_map(|set| set.iter().copied()));
     let sets: Vec<HashSet<i32>> = sets
         .into_iter()
         .map(|v| HashSet::from_iter(v.iter().copied()))
         .collect_vec();
+
     let mut stack = vec![];
     for c in formula.chars() {
         if c.is_ascii_uppercase() {
             let i = c as usize - 'A' as usize;
             if i >= sets.len() {
                 panic!(
-                    "Got letter {c} (index {i}) but only {} sets available",
+                    "got set {c} (index {i}) but only {} sets available",
                     sets.len()
                 );
             }
@@ -71,7 +122,7 @@ pub fn eval_set(formula: &str, sets: Vec<Vec<i32>>) -> Vec<i32> {
             }
             let a = stack.pop().unwrap();
             let b = stack.pop().unwrap();
-            stack.push(set_operation(b, a));
+            stack.push(set_operation(&universe, b, a));
         } else {
             panic!("invalid character: {}", c);
         }
@@ -108,14 +159,42 @@ mod tests {
     }
 
     #[test]
-    fn test_eval_set() {
-        assert_eq!(eval_set("AB&", vec![vec![0, 1, 2], vec![0, 3, 4]]), [0]);
+    fn test_eval_one_set() {
+        assert_eq!(eval_set("A", vec![vec![0, 1, 2]]), vec![0, 1, 2]);
+        assert_eq!(eval_set("A!", vec![vec![0, 1, 2]]), vec![]);
+        assert_eq!(eval_set("A!!", vec![vec![0, 1, 2]]), vec![0, 1, 2]);
+    }
+
+    #[test]
+    fn test_eval_two_sets() {
         assert_eq!(
             eval_set("AB|", vec![vec![0, 1, 2], vec![0, 3, 4]]),
             [0, 1, 2, 3, 4]
         );
-        assert_eq!(eval_set("A!", vec![vec![0, 1, 2]]), vec![]);
-        assert_eq!(eval_set("A!!", vec![vec![0, 1, 2]]), vec![0, 1, 2]);
+        assert_eq!(eval_set("AB&", vec![vec![0, 1, 2], vec![0, 3, 4]]), [0]);
+        assert_eq!(
+            eval_set("AB^", vec![vec![0, 1, 2], vec![0, 3, 4]]),
+            [1, 2, 3, 4]
+        );
+        assert_eq!(eval_set("AB=", vec![vec![0, 1, 2], vec![0, 3, 4]]), [0]);
+        assert_eq!(
+            eval_set("AB>", vec![vec![0, 1, 2], vec![0, 3, 4]]),
+            [0, 3, 4]
+        );
+    }
+
+    #[test]
+    fn test_eval_three_sets() {
+        let sets = vec![vec![1, 2], vec![2, 3], vec![3, 4]];
+        assert_eq!(eval_set("ABC&&", sets.clone()), []);
+        assert_eq!(eval_set("ABC||", sets.clone()), [1, 2, 3, 4]);
+        assert_eq!(eval_set("ABC|&", sets.clone()), [2]);
+        assert_eq!(eval_set("ABC&|", sets.clone()), [1, 2, 3]);
+        assert_eq!(eval_set("ABC^^", sets.clone()), [1, 4]);
+        assert_eq!(eval_set("ABC==", sets.clone()), [1, 4]);
+        assert_eq!(eval_set("ABC=^", sets.clone()), [2, 3]);
+        assert_eq!(eval_set("ABC^=", sets.clone()), [2, 3]);
+        assert_eq!(eval_set("ABC>>", sets.clone()), [1, 3, 4]);
     }
 
     // TODO: should_panic tests for eval_set
