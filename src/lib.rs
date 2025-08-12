@@ -59,6 +59,24 @@ pub fn sat(formula: &str) -> bool {
     parse_formula(formula).is_satisfiable()
 }
 
+// &HashSet would make more sense as input but gotta respect the subject
+pub fn powerset(set: Vec<i32>) -> Vec<Vec<i32>> {
+    fn _powerset(set: &Vec<i32>, i: usize, current: &mut Vec<i32>, output: &mut Vec<Vec<i32>>) {
+        if i == set.len() {
+            output.push(current.clone());
+            return;
+        }
+        _powerset(set, i + 1, current, output);
+        current.push(set[i]);
+        _powerset(set, i + 1, current, output);
+        current.pop();
+    }
+
+    let mut output = vec![];
+    _powerset(&set, 0, &mut vec![], &mut output);
+    output
+}
+
 #[cfg(test)]
 mod tests {
     use {super::*, rand::Rng};
@@ -141,5 +159,24 @@ mod tests {
         assert!(sat("AB&"));
         assert!(!sat("AA^"));
         assert!(!sat("ABCD^^^ABCD===&"));
+    }
+
+    #[test]
+    fn test_powerset() {
+        assert_eq!(powerset(vec![]), vec![vec![]]);
+        assert_eq!(powerset(vec![42]), vec![vec![], vec![42]]);
+        assert_eq!(
+            powerset(vec![1, 2, 3]),
+            vec![
+                vec![],
+                vec![3],
+                vec![2],
+                vec![2, 3],
+                vec![1,],
+                vec![1, 3],
+                vec![1, 2],
+                vec![1, 2, 3],
+            ]
+        );
     }
 }
