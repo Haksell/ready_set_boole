@@ -295,30 +295,73 @@ impl BooleanTree {
         self.remove_double_negation();
     }
 
-    fn _is_cnf(&self, and_allowed: bool) -> bool {
+    fn is_cnf_term(&self) -> bool {
         match self {
             BooleanTree::Value(_) | BooleanTree::Variable(_) => true,
             BooleanTree::Not(node) => {
                 matches!(**node, BooleanTree::Value(_) | BooleanTree::Variable(_))
             }
-            BooleanTree::Or(node1, node2) => node1._is_cnf(false) && node2._is_cnf(false),
-            BooleanTree::And(node1, node2) => {
-                and_allowed && node1._is_cnf(true) && node2._is_cnf(true)
-            }
-            BooleanTree::Xor(..) | BooleanTree::Implication(..) | BooleanTree::Equivalence(..) => {
-                false
-            }
+            BooleanTree::Or(node1, node2) => node1.is_cnf_term() && node2.is_cnf_term(),
+            _ => false,
         }
     }
 
     pub fn is_cnf(&self) -> bool {
-        self._is_cnf(true)
+        match self {
+            BooleanTree::Value(_) | BooleanTree::Variable(_) => true,
+            BooleanTree::Not(node) => {
+                matches!(**node, BooleanTree::Value(_) | BooleanTree::Variable(_))
+            }
+            BooleanTree::Or(node1, node2) => node1.is_cnf_term() && node2.is_cnf_term(),
+            BooleanTree::And(node1, node2) => node1.is_cnf() && node2.is_cnf(),
+            _ => false,
+        }
+    }
+
+    // Assumes the tree is already in NNF
+    fn ooga_chaka(&mut self) {
+        match self {
+            BooleanTree::Value(_) | BooleanTree::Variable(_) => {}
+            BooleanTree::Not(child) => match *child.clone() {
+                BooleanTree::Value(_) | BooleanTree::Variable(_) => {}
+                BooleanTree::Not(_) => {
+                    child.apply_de_morgan();
+                }
+                BooleanTree::Or(grandchild1, grandchild2) => {
+                    let mut left = BooleanTree::Not(grandchild1);
+                    let mut right = BooleanTree::Not(grandchild2);
+                    left.apply_de_morgan();
+                    right.apply_de_morgan();
+                    *self = BooleanTree::And(Box::new(left), Box::new(right));
+                }
+                BooleanTree::And(grandchild1, grandchild2) => {
+                    let mut left = BooleanTree::Not(grandchild1);
+                    let mut right = BooleanTree::Not(grandchild2);
+                    left.apply_de_morgan();
+                    right.apply_de_morgan();
+                    *self = BooleanTree::Or(Box::new(left), Box::new(right));
+                }
+                _ => unreachable!(),
+            },
+            BooleanTree::Or(child1, child2) | BooleanTree::And(child1, child2) => {
+                child1.apply_de_morgan();
+                child2.apply_de_morgan();
+            }
+            _ => unreachable!(),
+        }
     }
 
     pub fn make_cnf(&mut self) {
         self.make_nnf();
+        // self.ooga_chaka();
     }
 }
+
+/*
+AB=
+AB&A!B!&|
+(A & B) | (~A & ~B)
+*/
 
 // TODO: think about make_{cnf|nnf} or to_{cnf|nnf}
 
