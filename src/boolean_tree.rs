@@ -143,32 +143,31 @@ impl BooleanTree {
         &self,
         variables: &[char],
         values: &mut HashMap<char, bool>,
-        truth_table: &mut Vec<Vec<bool>>,
+        inputs: &mut Vec<Vec<bool>>,
+        outputs: &mut Vec<bool>,
     ) {
         if values.len() == variables.len() {
-            let line: Vec<bool> = variables
-                .iter()
-                .map(|c| values[c])
-                .chain(std::iter::once(self.evaluate_with_variables(values)))
-                .collect();
-            truth_table.push(line);
+            let line: Vec<bool> = variables.iter().map(|c| values[c]).collect();
+            inputs.push(line);
+            outputs.push(self.evaluate_with_variables(values));
             return;
         }
         let variable = variables[values.len()];
         values.insert(variable, false);
-        self.fill_truth_table(variables, values, truth_table);
+        self.fill_truth_table(variables, values, inputs, outputs);
         values.insert(variable, true);
-        self.fill_truth_table(variables, values, truth_table);
+        self.fill_truth_table(variables, values, inputs, outputs);
         values.remove_entry(&variable);
     }
 
-    pub fn compute_truth_table(&self) -> (Vec<char>, Vec<Vec<bool>>) {
+    pub fn compute_truth_table(&self) -> (Vec<char>, Vec<Vec<bool>>, Vec<bool>) {
         let mut variables = HashSet::new();
         self.get_variables(&mut variables);
         let variables = variables.into_iter().sorted().collect_vec();
-        let mut truth_table = vec![];
-        self.fill_truth_table(&variables, &mut HashMap::new(), &mut truth_table);
-        (variables, truth_table)
+        let mut inputs = vec![];
+        let mut outputs = vec![];
+        self.fill_truth_table(&variables, &mut HashMap::new(), &mut inputs, &mut outputs);
+        (variables, inputs, outputs)
     }
 
     pub fn is_nnf(&self) -> bool {
@@ -349,6 +348,8 @@ impl BooleanTree {
         self.make_nnf();
         while self.apply_distributivity() {}
     }
+
+    pub fn is_satisfiable(&self) {}
 }
 
 // TODO: avoid clones in make_{...}
