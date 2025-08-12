@@ -76,10 +76,13 @@ static SET_OPERATIONS: LazyLock<HashMap<char, SetOperation>> = LazyLock::new(|| 
     fn material_condition(
         universe: &HashSet<i32>,
         a: HashSet<i32>,
-        mut b: HashSet<i32>,
+        b: HashSet<i32>,
     ) -> HashSet<i32> {
-        b.extend(universe.difference(&a));
-        b
+        universe
+            .iter()
+            .filter(|x| !a.contains(&x) || b.contains(&x))
+            .copied()
+            .collect::<HashSet<i32>>()
     }
 
     HashMap::from([
