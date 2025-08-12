@@ -1,4 +1,3 @@
-- ex09
 - test ex06 waaaaay more deeply because i might have done the operations in the wrong order
 - ex06: remove clones (except one from xor/equivalence/distributivity)
 - check all comments

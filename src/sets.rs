@@ -108,7 +108,7 @@ pub fn eval_set(formula: &str, sets: Vec<Vec<i32>>) -> Vec<i32> {
             let i = c as usize - 'A' as usize;
             if i >= sets.len() {
                 panic!(
-                    "got set {c} (index {i}) but only {} sets available",
+                    "got set {c} (index {i}) but only {} set(s) available",
                     sets.len()
                 );
             }
