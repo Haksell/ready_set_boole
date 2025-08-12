@@ -121,53 +121,86 @@ impl BooleanTree {
         }
     }
 
-    fn get_variables(&self, variables: &mut HashSet<char>) {
-        match self {
-            BooleanTree::Value(_) => {}
-            BooleanTree::Variable(c) => {
-                variables.insert(*c);
-            }
-            BooleanTree::Not(node) => node.get_variables(variables),
-            BooleanTree::Or(node1, node2)
-            | BooleanTree::And(node1, node2)
-            | BooleanTree::Xor(node1, node2)
-            | BooleanTree::Implication(node1, node2)
-            | BooleanTree::Equivalence(node1, node2) => {
-                node1.get_variables(variables);
-                node2.get_variables(variables);
+    fn get_variables(&self) -> Vec<char> {
+        fn _get_variables(tree: &BooleanTree, variables: &mut HashSet<char>) {
+            match tree {
+                BooleanTree::Value(_) => {}
+                BooleanTree::Variable(c) => {
+                    variables.insert(*c);
+                }
+                BooleanTree::Not(node) => _get_variables(node, variables),
+                BooleanTree::Or(node1, node2)
+                | BooleanTree::And(node1, node2)
+                | BooleanTree::Xor(node1, node2)
+                | BooleanTree::Implication(node1, node2)
+                | BooleanTree::Equivalence(node1, node2) => {
+                    _get_variables(node1, variables);
+                    _get_variables(node2, variables);
+                }
             }
         }
-    }
-
-    fn fill_truth_table(
-        &self,
-        variables: &[char],
-        values: &mut HashMap<char, bool>,
-        inputs: &mut Vec<Vec<bool>>,
-        outputs: &mut Vec<bool>,
-    ) {
-        if values.len() == variables.len() {
-            let line: Vec<bool> = variables.iter().map(|c| values[c]).collect();
-            inputs.push(line);
-            outputs.push(self.evaluate_with_variables(values));
-            return;
-        }
-        let variable = variables[values.len()];
-        values.insert(variable, false);
-        self.fill_truth_table(variables, values, inputs, outputs);
-        values.insert(variable, true);
-        self.fill_truth_table(variables, values, inputs, outputs);
-        values.remove_entry(&variable);
+        let mut variables = HashSet::new();
+        _get_variables(self, &mut variables);
+        variables.into_iter().sorted().collect_vec()
     }
 
     pub fn compute_truth_table(&self) -> (Vec<char>, Vec<Vec<bool>>, Vec<bool>) {
-        let mut variables = HashSet::new();
-        self.get_variables(&mut variables);
-        let variables = variables.into_iter().sorted().collect_vec();
+        fn _compute_truth_table(
+            tree: &BooleanTree,
+            variables: &[char],
+            values: &mut HashMap<char, bool>,
+            inputs: &mut Vec<Vec<bool>>,
+            outputs: &mut Vec<bool>,
+        ) {
+            if values.len() == variables.len() {
+                inputs.push(variables.iter().map(|c| values[c]).collect());
+                outputs.push(tree.evaluate_with_variables(values));
+                return;
+            }
+            let variable = variables[values.len()];
+            values.insert(variable, false);
+            _compute_truth_table(tree, variables, values, inputs, outputs);
+            values.insert(variable, true);
+            _compute_truth_table(tree, variables, values, inputs, outputs);
+            values.remove_entry(&variable);
+        }
+
+        let variables = self.get_variables();
         let mut inputs = vec![];
         let mut outputs = vec![];
-        self.fill_truth_table(&variables, &mut HashMap::new(), &mut inputs, &mut outputs);
+        _compute_truth_table(
+            self,
+            &variables,
+            &mut HashMap::new(),
+            &mut inputs,
+            &mut outputs,
+        );
         (variables, inputs, outputs)
+    }
+
+    pub fn is_satisfiable(&self) -> bool {
+        fn _is_satisfiable(
+            tree: &BooleanTree,
+            variables: &[char],
+            values: &mut HashMap<char, bool>,
+        ) -> bool {
+            if values.len() == variables.len() {
+                return tree.evaluate_with_variables(values);
+            }
+            let variable = variables[values.len()];
+            values.insert(variable, false);
+            if _is_satisfiable(tree, variables, values) {
+                return true;
+            }
+            values.insert(variable, true);
+            if _is_satisfiable(tree, variables, values) {
+                return true;
+            }
+            values.remove_entry(&variable);
+            false
+        }
+
+        _is_satisfiable(self, &self.get_variables(), &mut HashMap::new())
     }
 
     pub fn is_nnf(&self) -> bool {
@@ -348,8 +381,6 @@ impl BooleanTree {
         self.make_nnf();
         while self.apply_distributivity() {}
     }
-
-    pub fn is_satisfiable(&self) {}
 }
 
 // TODO: avoid clones in make_{...}
