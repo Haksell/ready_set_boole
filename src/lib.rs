@@ -16,10 +16,10 @@ pub fn adder(a: u32, b: u32) -> u32 {
     let mut res = 0;
     let mut carry = 0;
     for i in 0..32 {
-        let da = a >> i & 1;
-        let db = b >> i & 1;
-        res |= (da ^ db ^ carry) << i;
-        carry = (da & db) | (da & carry) | (db & carry);
+        let ai = (a >> i) & 1;
+        let bi = (b >> i) & 1;
+        res |= (ai ^ bi ^ carry) << i;
+        carry = (ai & bi) | (ai & carry) | (bi & carry);
     }
     return res;
 }
@@ -27,8 +27,8 @@ pub fn adder(a: u32, b: u32) -> u32 {
 pub fn multiplier(a: u32, b: u32) -> u32 {
     let mut res = 0;
     for i in 0..32 {
-        let da = a >> i & 1;
-        let mask = adder(!da, 1);
+        let ai = (a >> i) & 1;
+        let mask = adder(!ai, 1);
         res = adder(res, (b & mask) << i);
     }
     res
