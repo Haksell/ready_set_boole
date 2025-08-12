@@ -8,16 +8,6 @@ use {
 
 pub type BinaryNode = fn(Box<BooleanTree>, Box<BooleanTree>) -> BooleanTree;
 
-static BINARY_NODES: LazyLock<HashMap<char, BinaryNode>> = LazyLock::new(|| {
-    HashMap::from([
-        ('|', BooleanTree::Or as BinaryNode),
-        ('&', BooleanTree::And as BinaryNode),
-        ('^', BooleanTree::Xor as BinaryNode),
-        ('>', BooleanTree::Implication as BinaryNode),
-        ('=', BooleanTree::Equivalence as BinaryNode),
-    ])
-});
-
 // TODO: ExpressionTree<T>
 // where T is bool or HashSet<...>
 
@@ -33,18 +23,18 @@ pub enum BooleanTree {
     Equivalence(Box<BooleanTree>, Box<BooleanTree>),
 }
 
-/* TODO: rewrite rules to implement
-elimination of double negation: (~~A) <=> (A)
-material conditions: (A => B) <=> (~A | B)
-equivalence: (A <=> B) <=> ((A => B) & (B => A))
-de morgan's 1: ~(A | B) <=> (~A & ~B)
-de morgan's 2: ~(A & B) <=> (~A | ~B)
-distributivity 1: (A & (B | C)) <=> ((A & B) | (A & C)))
-distributivity 2: (A | (B & C)) <=> ((A | B) & (A | C)))
-*/
-
 impl BooleanTree {
     pub fn new(formula: &str, is_algebraic: bool) -> Result<Self, &'static str> {
+        static BINARY_NODES: LazyLock<HashMap<char, BinaryNode>> = LazyLock::new(|| {
+            HashMap::from([
+                ('|', BooleanTree::Or as BinaryNode),
+                ('&', BooleanTree::And as BinaryNode),
+                ('^', BooleanTree::Xor as BinaryNode),
+                ('>', BooleanTree::Implication as BinaryNode),
+                ('=', BooleanTree::Equivalence as BinaryNode),
+            ])
+        });
+
         let mut stack = vec![];
         for c in formula.chars() {
             if c == '0' {
@@ -262,6 +252,7 @@ impl BooleanTree {
                 _ => unreachable!(),
             },
             BooleanTree::Or(child1, child2) | BooleanTree::And(child1, child2) => {
+                // store in variables to avoid short-circuiting
                 let b1 = child1.apply_de_morgan();
                 let b2 = child2.apply_de_morgan();
                 b1 || b2
@@ -319,33 +310,36 @@ impl BooleanTree {
     }
 
     // Assumes the tree is already in NNF
-    fn ooga_chaka(&mut self) {
+    fn apply_distributivity(&mut self) -> bool {
         match self {
-            BooleanTree::Value(_) | BooleanTree::Variable(_) => {}
-            BooleanTree::Not(child) => match *child.clone() {
-                BooleanTree::Value(_) | BooleanTree::Variable(_) => {}
-                BooleanTree::Not(_) => {
-                    child.apply_de_morgan();
+            BooleanTree::Value(_) | BooleanTree::Variable(_) | BooleanTree::Not(_) => false,
+            BooleanTree::And(child1, child2) => {
+                // store in variables to avoid short-circuiting
+                let b1 = child1.apply_distributivity();
+                let b2 = child2.apply_distributivity();
+                b1 || b2
+            }
+            BooleanTree::Or(child1, child2) => {
+                if let BooleanTree::And(grandchild1, grandchild2) = child1.as_ref() {
+                    let mut new_child1 = BooleanTree::Or(grandchild1.clone(), child2.clone());
+                    new_child1.apply_distributivity();
+                    let mut new_child2 = BooleanTree::Or(grandchild2.clone(), child2.clone());
+                    new_child2.apply_distributivity();
+                    *self = BooleanTree::And(Box::new(new_child1), Box::new(new_child2));
+                    true
+                } else if let BooleanTree::And(grandchild1, grandchild2) = child2.as_ref() {
+                    let mut new_child1 = BooleanTree::Or(grandchild1.clone(), child1.clone());
+                    new_child1.apply_distributivity();
+                    let mut new_child2 = BooleanTree::Or(grandchild2.clone(), child1.clone());
+                    new_child2.apply_distributivity();
+                    *self = BooleanTree::And(Box::new(new_child1), Box::new(new_child2));
+                    true
+                } else {
+                    // store in variables to avoid short-circuiting
+                    let b1 = child1.apply_distributivity();
+                    let b2 = child2.apply_distributivity();
+                    b1 || b2
                 }
-                BooleanTree::Or(grandchild1, grandchild2) => {
-                    let mut left = BooleanTree::Not(grandchild1);
-                    let mut right = BooleanTree::Not(grandchild2);
-                    left.apply_de_morgan();
-                    right.apply_de_morgan();
-                    *self = BooleanTree::And(Box::new(left), Box::new(right));
-                }
-                BooleanTree::And(grandchild1, grandchild2) => {
-                    let mut left = BooleanTree::Not(grandchild1);
-                    let mut right = BooleanTree::Not(grandchild2);
-                    left.apply_de_morgan();
-                    right.apply_de_morgan();
-                    *self = BooleanTree::Or(Box::new(left), Box::new(right));
-                }
-                _ => unreachable!(),
-            },
-            BooleanTree::Or(child1, child2) | BooleanTree::And(child1, child2) => {
-                child1.apply_de_morgan();
-                child2.apply_de_morgan();
             }
             _ => unreachable!(),
         }
@@ -353,17 +347,11 @@ impl BooleanTree {
 
     pub fn make_cnf(&mut self) {
         self.make_nnf();
-        // self.ooga_chaka();
+        while self.apply_distributivity() {}
     }
 }
 
-/*
-AB=
-AB&A!B!&|
-(A & B) | (~A & ~B)
-*/
-
-// TODO: think about make_{cnf|nnf} or to_{cnf|nnf}
+// TODO: avoid clones in make_{...}
 
 #[cfg(test)]
 mod tests {
@@ -515,6 +503,8 @@ mod tests {
         check_cnf("ABCDE>>>>");
         check_cnf("ABCDE====");
         check_cnf("ABCDE^^^^");
+        check_cnf("AB&CD&|EF&GH&||");
+        check_cnf("ABCDE&&&|");
         check_cnf("A!B!!C!!!D!!!!E!!!!!>>>>");
         check_cnf("A!B!!C!!!D!!!!E!!!!!====");
         check_cnf("A!B!!C!!!D!!!!E!!!!!^^^^");
