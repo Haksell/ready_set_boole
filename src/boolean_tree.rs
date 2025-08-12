@@ -8,9 +8,6 @@ use {
 
 pub type BinaryNode = fn(Box<BooleanTree>, Box<BooleanTree>) -> BooleanTree;
 
-// TODO: ExpressionTree<T>
-// where T is bool or HashSet<...>
-
 #[derive(Clone, Debug)]
 pub enum BooleanTree {
     Value(bool),
@@ -341,7 +338,7 @@ impl BooleanTree {
         }
     }
 
-    // Assumes the tree is already in NNF
+    // assumes the tree is already in NNF
     fn apply_distributivity(&mut self) -> bool {
         match self {
             BooleanTree::Value(_) | BooleanTree::Variable(_) | BooleanTree::Not(_) => false,
@@ -354,15 +351,15 @@ impl BooleanTree {
             BooleanTree::Or(child1, child2) => {
                 if let BooleanTree::And(grandchild1, grandchild2) = child1.as_ref() {
                     let mut new_child1 = BooleanTree::Or(grandchild1.clone(), child2.clone());
-                    new_child1.apply_distributivity();
                     let mut new_child2 = BooleanTree::Or(grandchild2.clone(), child2.clone());
+                    new_child1.apply_distributivity();
                     new_child2.apply_distributivity();
                     *self = BooleanTree::And(Box::new(new_child1), Box::new(new_child2));
                     true
                 } else if let BooleanTree::And(grandchild1, grandchild2) = child2.as_ref() {
                     let mut new_child1 = BooleanTree::Or(grandchild1.clone(), child1.clone());
-                    new_child1.apply_distributivity();
                     let mut new_child2 = BooleanTree::Or(grandchild2.clone(), child1.clone());
+                    new_child1.apply_distributivity();
                     new_child2.apply_distributivity();
                     *self = BooleanTree::And(Box::new(new_child1), Box::new(new_child2));
                     true
@@ -388,8 +385,6 @@ impl BooleanTree {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    // TODO: test new, to_formula
 
     #[test]
     fn test_is_nnf() {
@@ -542,5 +537,6 @@ mod tests {
         check_cnf("A!B!!C!!!D!!!!E!!!!!^^^^");
         check_cnf("AB&CD&|");
         check_cnf("AC>BCD&&!&");
+        check_cnf("ABCDE>=&|ABCD|||ABC>>AB=&&&");
     }
 }
