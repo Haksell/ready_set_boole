@@ -380,8 +380,6 @@ impl BooleanTree {
     }
 }
 
-// TODO: avoid clones in make_{...}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -413,22 +411,22 @@ mod tests {
     #[test]
     fn test_make_nnf() {
         fn check_nnf(formula: &str) {
-            let mut bt = BooleanTree::new(formula, true).unwrap();
-            let initial_formula = bt.to_formula();
-            let truth_table_before = bt.compute_truth_table();
-            bt.make_nnf();
+            let mut tree = BooleanTree::new(formula, true).unwrap();
+            let initial_formula = tree.to_formula();
+            let truth_table_before = tree.compute_truth_table();
+            tree.make_nnf();
             assert!(
-                bt.is_nnf(),
+                tree.is_nnf(),
                 "{:?}.to_nnf() = {:?} is not in negation normal form",
                 initial_formula,
-                bt.to_formula()
+                tree.to_formula()
             );
-            let truth_table_after = bt.compute_truth_table();
+            let truth_table_after = tree.compute_truth_table();
             assert!(
                 truth_table_before == truth_table_after,
                 "{:?} (before) and {:?} (after) do not have the same truth table",
                 initial_formula,
-                bt.to_formula()
+                tree.to_formula()
             );
         }
 
@@ -490,22 +488,22 @@ mod tests {
     #[test]
     fn test_make_cnf() {
         fn check_cnf(formula: &str) {
-            let mut bt = BooleanTree::new(formula, true).unwrap();
-            let initial_formula = bt.to_formula();
-            let truth_table_before = bt.compute_truth_table();
-            bt.make_cnf();
+            let mut tree = BooleanTree::new(formula, true).unwrap();
+            let initial_formula = tree.to_formula();
+            let truth_table_before = tree.compute_truth_table();
+            tree.make_cnf();
             assert!(
-                bt.is_cnf(),
+                tree.is_cnf(),
                 "{:?}.to_cnf() = {:?} is not in conjunctive normal form",
                 initial_formula,
-                bt.to_formula()
+                tree.to_formula()
             );
-            let truth_table_after = bt.compute_truth_table();
+            let truth_table_after = tree.compute_truth_table();
             assert!(
                 truth_table_before == truth_table_after,
                 "{:?} (before) and {:?} (after) do not have the same truth table",
                 initial_formula,
-                bt.to_formula()
+                tree.to_formula()
             );
         }
 
